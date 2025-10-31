@@ -1,0 +1,75 @@
+{
+  "id": 3,
+  "title": "Model Context Protocol | MCP Trilogy",
+  "description": "Learn about the Model Context Protocol (MCP) Trilogy from the CampusX channel, covering the protocol's overview, rationale, and architecture.",
+  "thumbnail_url": "https://i.ytimg.com/vi/3_TN1i3MTEU/hqdefault.jpg",
+  "playlist_id": "PLKnIA16_Rmva_oZ9F4ayUu9qcWgF7Fyc0",
+  "videos": [
+    {
+      "id": 301,
+      "order_index": 0,
+      "title": "Model Context Protocol | Mini Playlist | MCP Trilogy | CampusX",
+      "youtube_id": "3_TN1i3MTEU",
+      "video_link": "https://www.youtube.com/embed/3_TN1i3MTEU",
+      "duration_seconds": 2227,
+      "quiz": [
+        {
+          "question": "Which NumPy function is used to calculate the mean of an array?",
+          "options": [
+            "np.average()",
+            "np.mean()",
+            "np.avg()",
+            "np.stats.mean()"
+          ],
+          "correct": 1,
+          "explanation": "The function np.mean() is the standard way to calculate the arithmetic mean (average) along a specified axis.",
+          "difficulty": "easy"
+        }
+      ]
+    },
+    {
+      "id": 302,
+      "order_index": 1,
+      "title": "Model Context Protocol - The Why | MCP Trilogy | CampusX",
+      "youtube_id": "Zmy439spZB4",
+      "video_link": "https://www.youtube.com/embed/Zmy439spZB4",
+      "duration_seconds": 3121,
+      "quiz": [
+        {
+          "question": "Which NumPy function is used to calculate the mean of an array?",
+          "options": [
+            "np.average()",
+            "np.mean()",
+            "np.avg()",
+            "np.stats.mean()"
+          ],
+          "correct": 1,
+          "explanation": "The function np.mean() is the standard way to calculate the arithmetic mean (average) along a specified axis.",
+          "difficulty": "easy"
+        }
+      ]
+    },
+    {
+      "id": 303,
+      "order_index": 2,
+      "title": "MCP Architecture | Model Context Protocol Architecture | CampusX",
+      "youtube_id": "nQa31xdXbGk",
+      "video_link": "https://www.youtube.com/embed/nQa31xdXbGk",
+      "duration_seconds": 4629,
+      "quiz": [
+        {
+          "question": "Which NumPy function is used to calculate the mean of an array?",
+          "options": [
+            "np.average()",
+            "np.mean()",
+            "np.avg()",
+            "np.stats.mean()"
+          ],
+          "correct": 1,
+          "explanation": "The function np.mean() is the standard way to calculate the arithmetic mean (average) along a specified axis.",
+          "difficulty": "easy"
+        }
+      ]
+    }
+  ]
+}
