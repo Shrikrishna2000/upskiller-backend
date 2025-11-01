@@ -7,12 +7,17 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-# --- Import Database, Models, Schemas, and Auth Utilities ---
+from models import UserProgress
+from schemas import ProgressSubmit, UserProgressSchema
+from sqlalchemy.sql import func
+from datetime import datetime
+
 from database import get_db 
 from models import Course, Video, Quiz, User # Added User
 from schemas import UserCreate, User as UserSchema, Token
 from auth_utils import get_password_hash, verify_password, create_access_token, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
+
 
 # --- Configuration ---
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # Defined in auth_utils
@@ -132,3 +137,57 @@ async def get_course_db(
 def read_users_me(current_user: User = Depends(get_current_user)):
     """Returns the details of the currently authenticated user."""
     return current_user
+
+
+# ------------------------------------------------------------------
+# --- PROGRESS ENDPOINTS (Task 3.2) ---
+# ------------------------------------------------------------------
+
+@app.post("/api/progress/{video_id}", response_model=UserProgressSchema)
+async def submit_progress(
+    video_id: int, 
+    progress_data: ProgressSubmit, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    """Submits the completion status and score for a video's quiz."""
+    
+    # 1. Check if progress record already exists
+    progress = db.query(UserProgress).filter(
+        UserProgress.user_id == current_user.id,
+        UserProgress.video_id == video_id
+    ).first()
+
+    if progress:
+        # Update existing record
+        progress.quiz_score = progress_data.quiz_score
+        progress.is_completed = progress_data.is_completed
+        # Only update completed_at if it's being marked complete for the first time
+        if progress_data.is_completed and not progress.completed_at:
+            progress.completed_at = func.now()
+    else:
+        # Create new record
+        progress = UserProgress(
+            user_id=current_user.id,
+            video_id=video_id,
+            quiz_score=progress_data.quiz_score,
+            is_completed=progress_data.is_completed,
+            completed_at=func.now() if progress_data.is_completed else None
+        )
+        db.add(progress)
+        
+    db.commit()
+    db.refresh(progress)
+    return progress
+
+@app.get("/api/progress/me", response_model=list[UserProgressSchema])
+async def get_user_progress(
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    """Returns all progress records for the logged-in user."""
+    progress_list = db.query(UserProgress).filter(
+        UserProgress.user_id == current_user.id
+    ).all()
+    
+    return progress_list

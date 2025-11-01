@@ -28,3 +28,19 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Schema for the data contained inside the JWT payload"""
     email: str | None = None
+
+class ProgressSubmit(BaseModel):
+    """Schema for the client sending quiz results."""
+    video_id: int
+    quiz_score: int # The percentage score (0-100)
+    is_completed: bool # True if the score meets the Mastery Gate threshold (>= 70)
+
+class UserProgressSchema(BaseModel):
+    """Schema for fetching the user's progress records."""
+    video_id: int
+    is_completed: bool
+    quiz_score: int
+    # Note: We omit timestamps for simplicity in the MVP response
+
+    class Config:
+        orm_mode = True
