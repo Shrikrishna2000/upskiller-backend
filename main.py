@@ -18,6 +18,17 @@ from schemas import UserCreate, User as UserSchema, Token
 from auth_utils import get_password_hash, verify_password, create_access_token, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 
+from ai_pipeline import generate_all_content
+from services import save_generated_content
+from schemas import ProgressSubmit, UserProgressSchema
+# Add a new Pydantic schema for the request body
+from pydantic import BaseModel, HttpUrl
+
+
+# --- Request Schema for Content Generation ---
+class ContentRequest(BaseModel):
+    """Schema for the request body when generating new content."""
+    youtube_url: HttpUrl # Use HttpUrl for validation
 
 # --- Configuration ---
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # Defined in auth_utils
@@ -191,3 +202,45 @@ async def get_user_progress(
     ).all()
     
     return progress_list
+# ------------------------------------------------------------------
+# --- AI GENERATION ENDPOINT (Milestone 4B Integration) ---
+# ------------------------------------------------------------------
+
+@app.post("/api/content/generate")
+async def generate_content(
+    request: ContentRequest,
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db) # CRITICAL: Inject DB session here
+):
+    """
+    Triggers the AI pipeline, generates content, and persists it to the database.
+    """
+    
+    # 1. Extract Video ID (Existing logic)
+    video_id = str(request.youtube_url).split("v=")[-1].split("&")[0]
+
+    if not video_id:
+        raise HTTPException(status_code=400, detail="Invalid YouTube URL provided.")
+        
+    try:
+        # 1. Run the COMBINED LangChain/Gemini pipeline
+        # 🛑 NEW: Get both quiz and flashcard data simultaneously
+        quiz_data, flashcard_data = generate_all_content(video_id)
+        
+        # 2. Call the service layer to handle persistence
+        # 🛑 NEW: Pass both data dictionaries
+        new_course = save_generated_content(db, quiz_data, flashcard_data, video_id)
+                
+        # Return success and the ID of the new course
+        return {
+            "message": "AI content successfully generated and saved.",
+            "course_id": new_course.id,
+            "video_id": video_id,
+            "title": new_course.title
+        }
+
+    except Exception as e:
+        # Note: Rollback ensures database integrity if an error occurs
+        db.rollback() 
+        print(f"AI Generation Error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI pipeline failed during generation or saving: {e}")

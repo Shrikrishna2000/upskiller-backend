@@ -43,7 +43,9 @@ class Video(Base):
     
     course = relationship("Course", back_populates="videos")
     quizzes = relationship("Quiz", back_populates="video", uselist=False) # One quiz per video
+    flashcards = relationship("Flashcard", back_populates="video", cascade="all, delete-orphan")
 
+    
 class Quiz(Base):
     __tablename__ = "quizzes"
 
@@ -76,3 +78,16 @@ class UserProgress(Base):
     # Relationships
     user = relationship("User", back_populates="progress")
     video = relationship("Video") # No back_populates needed on Video for progress
+
+# --- Flashcard ---
+class Flashcard(Base):
+    __tablename__ = "flashcards"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    video_id = Column(Integer, ForeignKey("videos.id"), nullable=False)
+    
+    # Store the list of flashcards as a JSON string
+    flashcard_data = Column(String, nullable=False) 
+    
+    # Relationship to link back to the Video
+    video = relationship("Video", back_populates="flashcards")

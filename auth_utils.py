@@ -9,9 +9,14 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 from schemas import TokenData
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Security settings
 SECRET_KEY = "YOUR_SUPER_SECRET_KEY"  # <-- **CRITICAL: Change this in production!**
+GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # Token lasts 30 minutes
 

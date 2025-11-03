@@ -16,7 +16,7 @@ class User(UserBase):
     is_active: bool
 
     class Config:
-        orm_mode = True # Allows mapping from SQLAlchemy models
+        from_attributes = True # Allows mapping from SQLAlchemy models
 
 # --- Authentication Schemas ---
 
@@ -43,4 +43,4 @@ class UserProgressSchema(BaseModel):
     # Note: We omit timestamps for simplicity in the MVP response
 
     class Config:
-        orm_mode = True
+        from_attributes = True

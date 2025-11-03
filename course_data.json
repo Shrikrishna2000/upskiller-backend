@@ -1,5 +1,5 @@
 {
-  "id": 3,
+  "id": 1,
   "title": "Model Context Protocol | MCP Trilogy",
   "description": "Learn about the Model Context Protocol (MCP) Trilogy from the CampusX channel, covering the protocol's overview, rationale, and architecture.",
   "thumbnail_url": "https://i.ytimg.com/vi/3_TN1i3MTEU/hqdefault.jpg",
@@ -14,60 +14,37 @@
       "duration_seconds": 2227,
       "quiz": [
         {
-          "question": "Which NumPy function is used to calculate the mean of an array?",
+          "question": "In the automated newsletter creation process, what three specific sources does the Claude AI analyze in the initial part of the Research Phase to determine the topics for the upcoming newsletter?",
           "options": [
-            "np.average()",
-            "np.mean()",
-            "np.avg()",
-            "np.stats.mean()"
+            "The `sample_newsletter` template, trending topics from Web Search, and user feedback emails.",
+            "The `content_ideas` file, the `performance_data` file from Google Drive, and user feedback emails from Gmail.",
+            "Top GitHub repositories, trending research papers from Archive, and popular tweets.",
+            "The `final_draft` document, performance data from Mailchimp, and the `content_ideas` file."
           ],
           "correct": 1,
-          "explanation": "The function np.mean() is the standard way to calculate the arithmetic mean (average) along a specified axis.",
-          "difficulty": "easy"
-        }
-      ]
-    },
-    {
-      "id": 302,
-      "order_index": 1,
-      "title": "Model Context Protocol - The Why | MCP Trilogy | CampusX",
-      "youtube_id": "Zmy439spZB4",
-      "video_link": "https://www.youtube.com/embed/Zmy439spZB4",
-      "duration_seconds": 3121,
-      "quiz": [
+          "explaination": "The video specifies that before conducting research, the AI first determines the research focus by analyzing three sources: a `content_ideas` file and a `performance_data` file fetched from Google Drive, and feedback emails read from the user's Gmail account."
+        },
         {
-          "question": "Which NumPy function is used to calculate the mean of an array?",
+          "question": "According to the video, what was the primary method used to integrate various external tools (like GitHub, Google Drive, Twitter) with the Claude AI model via MCP?",
           "options": [
-            "np.average()",
-            "np.mean()",
-            "np.avg()",
-            "np.stats.mean()"
+            "Developing custom Python scripts with API calls for each individual tool and linking them to Claude.",
+            "Using a pre-built integration platform like Zapier or IFTTT to connect Claude to the tools.",
+            "Writing a single JSON configuration file (`claude_desktop_config.json`) that specifies the connection details for each MCP tool.",
+            "Installing separate plugins directly into the Claude Desktop application for each tool from a marketplace."
           ],
-          "correct": 1,
-          "explanation": "The function np.mean() is the standard way to calculate the arithmetic mean (average) along a specified axis.",
-          "difficulty": "easy"
-        }
-      ]
-    },
-    {
-      "id": 303,
-      "order_index": 2,
-      "title": "MCP Architecture | Model Context Protocol Architecture | CampusX",
-      "youtube_id": "nQa31xdXbGk",
-      "video_link": "https://www.youtube.com/embed/nQa31xdXbGk",
-      "duration_seconds": 4629,
-      "quiz": [
+          "correct": 2,
+          "explaination": "The presenter emphasizes the power and simplicity of MCP by showing that all the tool integrations were achieved by adding configuration details to a single JSON file (`claude_desktop_config.json`), eliminating the need for writing complex API call functions for each service."
+        },
         {
-          "question": "Which NumPy function is used to calculate the mean of an array?",
+          "question": "What is the correct sequence of key file manipulations in the demonstrated workflow, starting from the end of the Research phase to the final output?",
           "options": [
-            "np.average()",
-            "np.mean()",
-            "np.avg()",
-            "np.stats.mean()"
+            "Five research markdown files are generated on the desktop, then combined with a sample template from Google Drive to create a single final draft markdown file on the desktop, which is finally converted into an HTML file.",
+            "A single research document is created on Google Drive, then edited into a final draft on the desktop, and finally converted into a PDF file.",
+            "Five research markdown files are generated on the desktop, then directly converted into a single HTML file using a template stored locally.",
+            "A sample template from Google Drive is used to generate five research markdown files, which are then combined into a final draft and saved back to Google Drive."
           ],
-          "correct": 1,
-          "explanation": "The function np.mean() is the standard way to calculate the arithmetic mean (average) along a specified axis.",
-          "difficulty": "easy"
+          "correct": 0,
+          "explaination": "The process is clearly defined in three stages: 1) Research phase ends with five separate markdown files on the desktop. 2) Editing phase combines these five files using a sample template from Google Drive to produce one `final_draft.md` on the desktop. 3) Designing phase takes this final draft and converts it into the final HTML file."
         }
       ]
     }
