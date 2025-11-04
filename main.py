@@ -17,13 +17,13 @@ from models import Course, Video, Quiz, User # Added User
 from schemas import UserCreate, User as UserSchema, Token
 from auth_utils import get_password_hash, verify_password, create_access_token, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
-
 from ai_pipeline import generate_all_content
 from services import save_generated_content
 from schemas import ProgressSubmit, UserProgressSchema
-# Add a new Pydantic schema for the request body
 from pydantic import BaseModel, HttpUrl
-
+from services import get_all_courses 
+from schemas import CourseListSchema, CourseSchema 
+from typing import List
 
 # --- Request Schema for Content Generation ---
 class ContentRequest(BaseModel):
@@ -101,47 +101,31 @@ def login_for_access_token(
 # --- PROTECTED COURSE ENDPOINT (Task 2.3 & Final Check) ---
 # ------------------------------------------------------------------
 
-@app.get("/api/courses/{course_id}")
-async def get_course_db(
+@app.get("/api/courses/{course_id}", response_model=CourseSchema)
+async def get_course_by_id(
     course_id: int, 
-    # CRITICAL: This line uses the dependency to ensure a valid token is present.
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
-    """Fetches the course data from the database, only for authenticated users."""
-    
-    # 1. Fetch the Course object
     course = db.query(Course).filter(Course.id == course_id).first()
     
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
 
-    # 2. Fetch all Videos and their Quizzes for the course
-    videos_db = db.query(Video).filter(Video.course_id == course_id).order_by(Video.order_index).all()
-    
-    videos_list = []
-    for video_db in videos_db:
-        quiz_db = db.query(Quiz).filter(Quiz.video_id == video_db.id).first()
-        
-        videos_list.append({
-            "id": video_db.id,
-            "order_index": video_db.order_index,
-            "title": video_db.title,
-            "youtube_id": video_db.youtube_id,
-            "duration_seconds": video_db.duration_seconds,
-            # Load the JSON string back into a Python list/dict
-            "quiz": json.loads(quiz_db.question_data) if quiz_db else [] 
-        })
+    # 🛑 CRITICAL FIX: Deserialize JSON strings for AI content
+    # This loop ensures the client receives Python objects, not JSON strings.
+    for video in course.videos:
+        # Deserialize all quizzes for this video
+        for quiz in video.quizzes:
+            if quiz.question_data:
+                quiz.question_data = json.loads(quiz.question_data)
 
-    # 3. Assemble the final response structure
-    return {
-        "id": course.id,
-        "title": course.title,
-        "description": course.description,
-        "playlist_id": course.playlist_id,
-        "thumbnail_url": course.thumbnail_url,
-        "videos": videos_list
-    }
+        # Deserialize all flashcards for this video
+        for flashcard in video.flashcards:
+            if flashcard.flashcard_data:
+                flashcard.flashcard_data = json.loads(flashcard.flashcard_data)
+
+    return course
 
 # --- Example Protected Endpoint for user details (Useful for initial testing) ---
 @app.get("/api/users/me", response_model=UserSchema)
@@ -154,19 +138,22 @@ def read_users_me(current_user: User = Depends(get_current_user)):
 # --- PROGRESS ENDPOINTS (Task 3.2) ---
 # ------------------------------------------------------------------
 
-@app.post("/api/progress/{video_id}", response_model=UserProgressSchema)
+# 🛑 FIX: Removed /{video_id} from the path and the video_id argument from the function.
+@app.post("/api/progress", response_model=UserProgressSchema)
 async def submit_progress(
-    video_id: int, 
-    progress_data: ProgressSubmit, 
+    progress_data: ProgressSubmit, # All required data (including video_id) is in the body
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
     """Submits the completion status and score for a video's quiz."""
     
+    # Use the video_id from the Pydantic model (progress_data)
+    video_id_from_body = progress_data.video_id 
+    
     # 1. Check if progress record already exists
     progress = db.query(UserProgress).filter(
         UserProgress.user_id == current_user.id,
-        UserProgress.video_id == video_id
+        UserProgress.video_id == video_id_from_body # Use the ID from the body
     ).first()
 
     if progress:
@@ -180,7 +167,7 @@ async def submit_progress(
         # Create new record
         progress = UserProgress(
             user_id=current_user.id,
-            video_id=video_id,
+            video_id=video_id_from_body,
             quiz_score=progress_data.quiz_score,
             is_completed=progress_data.is_completed,
             completed_at=func.now() if progress_data.is_completed else None
@@ -191,8 +178,9 @@ async def submit_progress(
     db.refresh(progress)
     return progress
 
-@app.get("/api/progress/me", response_model=list[UserProgressSchema])
-async def get_user_progress(
+# 🛑 FIX: Renamed the GET route to /api/progress and updated response_model to List
+@app.get("/api/progress", response_model=List[UserProgressSchema])
+async def get_user_all_progress(
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
@@ -244,3 +232,19 @@ async def generate_content(
         db.rollback() 
         print(f"AI Generation Error: {e}")
         raise HTTPException(status_code=500, detail=f"AI pipeline failed during generation or saving: {e}")
+    
+# ------------------------------------------------------------------
+# --- COURSE DISCOVERY ENDPOINT (Milestone 4D) ---
+# ------------------------------------------------------------------
+
+@app.get("/api/courses", response_model=List[CourseListSchema])
+async def list_all_courses(
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    """
+    Returns a list of all courses the user can view.
+    """
+    courses = get_all_courses(db)
+    # Note: In a real app, you'd filter this by user enrollment or access rights.
+    return courses

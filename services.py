@@ -70,3 +70,10 @@ def save_generated_content(db: Session, quiz_data: dict, flashcard_data: dict, v
     except Exception as e:
         db.rollback() 
         raise e
+    
+# --- NEW: Fetch All Courses ---
+def get_all_courses(db: Session):
+    """
+    Fetches a list of all courses available in the database.
+    """
+    return db.query(Course).all()

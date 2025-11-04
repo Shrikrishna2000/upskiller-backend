@@ -42,7 +42,8 @@ class Video(Base):
     duration_seconds = Column(Integer)
     
     course = relationship("Course", back_populates="videos")
-    quizzes = relationship("Quiz", back_populates="video", uselist=False) # One quiz per video
+    quizzes = relationship("Quiz", back_populates="video")
+
     flashcards = relationship("Flashcard", back_populates="video", cascade="all, delete-orphan")
 
     
